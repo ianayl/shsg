@@ -1,5 +1,5 @@
 #!/bin/sh
 
-# shsg/source/build - script responsible for cleaning
+# ./source/build - script responsible for cleaning
 
 echo bye

@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# shsg/source/build - script responsible for building
+# ./source/build - script responsible for building
 #
 # todo:
 # 
 
-echo hi
+[ -z $1 ] && usage && exit
 
+echo poop

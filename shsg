@@ -7,17 +7,10 @@
 # - The themes are located in ./themes
 # - The pages for the website are located in ./content
 # - The finished public website is located at ./public
-
-usage() {
-    >&2 echo "\nUsage: ./ssg.sh [OPTION] [THEME] ...
-\t-b\tbuild the site into ./public using [THEME]
-\t-c\tclean up current site
-\t-h\tprint this help message
-"
-}
+# - The scripts responsible for this script is at ./source
 
 case $1 in
     -b) ./source/build ;;
     -c) ./source/clean ;;
-    *) usage ;;
+    *) ./source/usage $1 ;;
 esac
