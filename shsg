@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# shsg - shell site generator
+#
+# A simple static site generator using pure POSIX sh and basic UNIX coreutils.
+#
+# - The themes are located in ./themes
+# - The pages for the website are located in ./content
+# - The finished public website is located at ./public
+
+usage() {
+    >&2 echo "\nUsage: ./ssg.sh [OPTION] [THEME] ...
+\t-b\tbuild the site into ./public using [THEME]
+\t-c\tclean up current site
+\t-h\tprint this help message
+"
+}
+
+case $1 in
+    -b) ./source/build ;;
+    -c) ./source/clean ;;
+    *) usage ;;
+esac

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# shsg/source/build - script responsible for building
+#
+# todo:
+# 
+
+echo hi
+
