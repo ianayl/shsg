@@ -1,10 +1,64 @@
 #!/bin/sh
 
-# ./source/build - script responsible for building
+# source/build - handles the preliminary tasks before building
 #
-# todo:
+# Todo:
 # 
 
-[ -z $1 ] && usage && exit
+[ -z $1 ] && source/usage && exit
 
-echo poop
+# Import the parser function
+. source/parser
+
+if [ -d "themes/$1" ]
+then 
+    source/clean
+
+    echo "--- Using theme $1"
+
+    echo "==> Building site into public..."
+    mkdir -v public
+
+    # Copy theme css over
+    cp -rv "themes/$1/styles" "public/styles"
+
+    # Process every markdown file, but also don't process dotfiles
+    for f in $(find content | grep -E 'content\/[^\.].*\.md$')
+    do
+        # Don't process directories
+        [ -d $f ] && continue
+
+        echo "--- Processing $f..."
+
+        # Caching first line for later use
+        f_1l=$(head -n 1 $f)
+
+        # If type line does not exist
+        if [ -z "$(printf "$f_1l" | grep '<!--.*-->')" ] 
+        then
+            f_type='generic'
+            f_1l='' # read first line for input
+        else
+            f_type=$(echo "$f_1l" | sed -E 's/<!--//; s/-->//; s/\s//g')
+            # if type is not defined, default to generic
+            [ -z "$f_type" ] && f_type='generic'
+        fi
+
+        f_type_loc="themes/$1/filetype/$f_type"
+        if [ -d "$f_type_loc" ]
+        then
+            echo "--- $f has type $f_type."
+        else
+            echo "==> Error: $f has undefined type $f_type."
+            continue
+        fi
+
+        f_final_dest=$(echo "$f" | sed -E 's/^content/public/; s/md$/html/')
+
+        parser
+
+    done
+    echo "==> Build finished."
+else
+    echo "==> Error: theme $1 not found." && exit
+fi

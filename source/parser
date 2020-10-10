@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# source/parser - parses and stitches the markdown file
+
+parser() {
+    # Copy the header over to start the file
+    mkdir -pv ${f_final_dest%/*} # removes filename
+    cp -v "$f_type_loc/template_header" "$f_final_dest"
+
+    while IFS= read -r l || [ -n "$l" ]
+    do
+        [ -z "$l" ] && continue
+        # Discard first line in the file if it's a type line
+        [ "$l" = "$f_1l" ] && continue
+    
+        # echo "$l"
+    
+        # # h* of any number
+        # l_test="$(echo $l | grep -o '^#*')"
+        # [ -n "$l_test" ] && handle_h && continue
+        # 
+        # # Custom elements
+        # l_test="$(echo $l | grep -o '^\$\w*:::..')"
+        # [ -n "$l_test" ] && handle_special && continue
+    
+        # # No type, it's a p
+        # handle_p
+    done < "$f"
+
+    cat "$f_type_loc/template_footer" >> "$f_final_dest"
+}

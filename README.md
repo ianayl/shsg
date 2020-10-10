@@ -1,4 +1,4 @@
-# ssg.sh
+# shsg
 A static site generator written in POSIX shell.
 
 ## Why?

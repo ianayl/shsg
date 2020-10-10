@@ -10,7 +10,7 @@
 # - The scripts responsible for this script is at ./source
 
 case $1 in
-    -b) ./source/build ;;
-    -c) ./source/clean ;;
-    *) ./source/usage $1 ;;
+    -b) source/build $2 ;;
+    -c) source/clean ;;
+    *) source/usage $1 ;;
 esac
