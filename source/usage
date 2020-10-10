@@ -1,0 +1,10 @@
+#!/bin/sh
+
+[ -n "$1" ] && printf "Invalid option: $1\n"
+
+printf "Usage: ./shsg [OPTION] [THEME] ...
+Options:
+  -b    build the site into ./public using [THEME]
+  -c    clean up current site
+  -h    print this help message
+"

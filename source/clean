@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# source/clean - "macro" for cleaning
+#
+# todo: Do I really need this as a separate file?
+#       Currently this is here because I'm lazy
+
+
+[ -d './public' ] && printf "==> Cleaning up...\n" && rm -vr ./public
