@@ -2,6 +2,9 @@
 
 # source/parser - parses and stitches the markdown file
 
+# import for handle_h
+. source/handle/h
+
 parser() {
     # Copy the header over to start the file
     mkdir -pv ${f_final_dest%/*} # removes filename
@@ -15,15 +18,15 @@ parser() {
     
         # echo "$l"
     
-        # # h* of any number
-        # l_test="$(echo $l | grep -o '^#*')"
-        # [ -n "$l_test" ] && handle_h && continue
-        # 
-        # # Custom elements
-        # l_test="$(echo $l | grep -o '^\$\w*:::..')"
+        # Checking for h* of any number in the beginning
+        l_test=$(printf '%s' "$l" | grep -E '^#+')
+        [ -n "$l_test" ] && handle_h && continue
+        
+        # Custom elements
+        # l_test="$(printf '%s' "$l" | grep -o '^\$\w*:::..')"
         # [ -n "$l_test" ] && handle_special && continue
     
-        # # No type, it's a p
+        # No type, it's a p
         # handle_p
     done < "$f"
 

@@ -1,9 +1,6 @@
 #!/bin/sh
 
-# source/build - handles the preliminary tasks before building
-#
-# Todo:
-# 
+# source/build - starts the building process
 
 [ -z $1 ] && source/usage && exit
 
@@ -34,12 +31,12 @@ then
         f_1l=$(head -n 1 $f)
 
         # If type line does not exist
-        if [ -z "$(printf "$f_1l" | grep '<!--.*-->')" ] 
+        if [ -z "$(printf '%s' "$f_1l" | grep '<!--.*-->')" ] 
         then
             f_type='generic'
             f_1l='' # read first line for input
         else
-            f_type=$(echo "$f_1l" | sed -E 's/<!--//; s/-->//; s/\s//g')
+            f_type=$(printf '%s' "$f_1l" | sed -E 's/<!--//; s/-->//; s/\s//g')
             # if type is not defined, default to generic
             [ -z "$f_type" ] && f_type='generic'
         fi
@@ -53,9 +50,9 @@ then
             continue
         fi
 
-        f_final_dest=$(echo "$f" | sed -E 's/^content/public/; s/md$/html/')
+        f_final_dest=$(printf '%s' "$f" | sed -E 's/^content/public/; s/md$/html/')
 
-        parser
+        parser # the file is actually read here
 
     done
     echo "==> Build finished."
