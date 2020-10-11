@@ -23,7 +23,7 @@ parser() {
         [ -n "$l_test" ] && handle_h && continue
         
         # Custom elements
-        # l_test="$(printf '%s' "$l" | grep -o '^\$\w*:::..')"
+        # l_test="$(printf '%s' "$l" | grep '^\$\w*\$')"
         # [ -n "$l_test" ] && handle_special && continue
     
         # No type, it's a p

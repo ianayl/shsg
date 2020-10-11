@@ -31,7 +31,7 @@ then
         f_1l=$(head -n 1 $f)
 
         # If type line does not exist
-        if [ -z "$(printf '%s' "$f_1l" | grep '<!--.*-->')" ] 
+        if [ -z "$(printf '%s' "$f_1l" | grep -E '<!--.*-->')" ] 
         then
             f_type='generic'
             f_1l='' # read first line for input
