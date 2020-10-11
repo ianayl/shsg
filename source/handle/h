@@ -1,0 +1,19 @@
+#!/bin/sh
+
+handle_h() {
+    # Separate the #'s from the content in the header element
+    h_content=$(printf '%s' "$l" | sed 's/^#*//')
+    h_lvl=${l_test%$h_content}
+
+    h_file="$f_type_loc/h${#h_lvl}"
+    if [ -f "$h_file" ] 
+    then
+        # Get rid of extra whitespace before the content itself
+        res=${h_content#${h_content%%[![:space:]]*}}
+        # Escape the results to make sure replacements work properly 
+        e_res=$(printf '%s' "$res" | sed -e 's/[\/&]/\\&/g')
+        cat "$h_file" | sed -e "s/###PARAM1###/$e_res/g" >> $f_final_dest
+    else
+        echo "==> Warning: No template for h${#h_lvl} found, skipping."
+    fi
+}
