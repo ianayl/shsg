@@ -1,0 +1,29 @@
+#!/bin/sh
+
+. source/handle/text
+
+# Handle p elements
+handle_p() {
+    handle_text "$l"
+
+    # Checks to confirm that this is actually a p:
+
+    # Check 1: the input was only an image and nothing else
+    if [ -n "$(printf '%s' "$l" | grep -E "^\!\[[^]]*\]\([^)]*\)")" ]
+    then
+        printf '%s' "$processed" >> $f_final_dest
+    else
+        p_file="$f_type_loc/p"
+        if [ -f "$p_file" ]
+        then
+            # Making sure $processed has the proper escapes to go into sed
+            e_processed=$(printf '%s' "$processed" | sed -E 's/[\/&]/\\&/g')
+            # Add p tag to final file
+            cat "$p_file" | sed -E "s/###PARAM1###/$e_processed/" >> $f_final_dest
+        else
+            echo "==> Warning: no template file for p found, skipping."
+        fi
+    fi
+
+    # TODO Check 2: the input was not straight up html
+}
