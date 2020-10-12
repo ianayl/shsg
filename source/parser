@@ -5,6 +5,7 @@
 # import for handle_h
 . source/handle/h
 . source/handle/p
+. source/handle/special
 
 parser() {
     # Copy the header over to start the file
@@ -24,8 +25,8 @@ parser() {
         [ -n "$l_test" ] && handle_h && continue
         
         # Custom elements
-        # l_test="$(printf '%s' "$l" | grep '^\$\w*\$')"
-        # [ -n "$l_test" ] && handle_special && continue
+        l_test="$(printf '%s' "$l" | grep '^\$\w*\$')"
+        [ -n "$l_test" ] && handle_special && continue
     
         # No type, default to paragraph
         handle_p
