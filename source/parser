@@ -4,6 +4,7 @@
 
 # import for handle_h
 . source/handle/h
+. source/handle/p
 
 parser() {
     # Copy the header over to start the file
@@ -26,8 +27,8 @@ parser() {
         # l_test="$(printf '%s' "$l" | grep '^\$\w*\$')"
         # [ -n "$l_test" ] && handle_special && continue
     
-        # No type, it's a p
-        # handle_p
+        # No type, default to paragraph
+        handle_p
     done < "$f"
 
     cat "$f_type_loc/template_footer" >> "$f_final_dest"

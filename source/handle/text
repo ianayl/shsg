@@ -1,0 +1,152 @@
+#!/bin/sh
+
+handle_text() {
+
+    # set IFS as \n
+    oldIFS=$IFS
+    IFS='
+'
+    processed="$1"
+
+    # Does the image template exist?
+    img_file="$f_type_loc/img"
+    if [ -f "$img_file" ]
+    then
+        # Cycle through every image
+        # TODO -o is not posix, but is present in most grep implementations.
+        #      decide wether or not this needs to be changed later on
+        for img in $(printf '%s' "$processed" | grep -oE "\!\[[^]]*\]\([^)]*\)")
+        do
+            [ -z "$img" ] && continue
+
+            # TODO simplify this using POSIX varaible expansion Isolate for first param
+            param_1="$(printf '%s' "$img" | sed -E 's/^\!\[//; s/\]\(.*\)$//')"
+            # Escape characters in param_1
+            e_param_1=$(printf '%s' "$param_1" | sed -E 's/[\/&]/\\&/g')
+
+            # Isolate for 2nd param
+            param_2="$(printf '%s' "$img" | sed -E 's/^\!\[.*\]\(//; s/\)$//')"
+            # Escape characters in param_2
+            e_param_2=$(printf '%s' "$param_2" | sed -E 's/[\/&]/\\&/g')
+
+            # Generate resulting value
+            res="$(cat "$img_file" | \
+               sed "s/###PARAM1###/$e_param_1/g; s/###PARAM2###/$e_param_2/g")"
+            e_res="$(printf '%s' "$res" | sed -E 's/[\/&]/\\&/g')"
+            processed=$(echo "$processed" | \
+                        sed -E "s/\!\[[^]]*\]\([^)]*\)/$e_res/")
+        done
+    fi
+
+    # Checks for a (links)
+    a_file="$f_type_loc/a"
+    if [ -f "$a_file" ]
+    then
+        # Cycle through every a found
+        for a in $(printf '%s' "$processed" | grep -oE '\[[^]]*\]\([^)]*\)')
+        do
+            [ -z "$a" ] && continue
+
+            # Isolate for first param
+            param_1="$(printf '%s' "$a" | sed -E 's/^\[//; s/\]\(.*\)$//')"
+            # Escape characters in param_1
+            e_param_1=$(echo "$param_1" | sed -E 's/[\/&]/\\&/g')
+
+            # Isolate for 2nd param
+            param_2="$(printf '%s' "$img" | sed -E 's/^\[.*\]\(//; s/\)$//')"
+            # Escape characters in param_2
+            e_param_2=$(echo "$param_2" | sed -E 's/[\/&]/\\&/g')
+
+            # Generate resulting value
+            res="$(cat "$a_file" | \
+               sed "s/###PARAM1###/$e_param_1/g; s/###PARAM2###/$e_param_2/g")"
+            e_res="$(echo "$res" | sed -e 's/[\/&]/\\&/g')"
+            processed=$(echo "$processed" | \
+                        sed -E "s/\[[^]]*\]\([^)]*\)/$e_res/")
+        done
+    fi
+
+    # bold and italics files should be defined here
+    b_file="$f_type_loc/b"
+    i_file="$f_type_loc/i"
+
+    # Checks for *** (bold and italics combined)
+    if [ -f "$b_file" ] && [ -f "$i_file" ]
+    then
+        processed="$(printf '%s' "$processed" | sed -r 's/\*\*\*/†/g')"
+        # Cycle through every bi found
+        for bi in $(printf '%s' "$processed" | grep -oE "†[^†]*†")
+        do
+            [ -z "$bi" ] && continue
+
+            # Get rid of starting *'s
+            param_1=${bi#†}
+            # Get rid of ending *'s
+            param_1=${param_1%†}
+            e_param_1=$(echo "$param_1" | sed -r 's/[\/&]/\\&/g')
+
+            # Nest result in i first
+            res="$(cat "$i_file" | sed "s/###PARAM1###/$e_param_1/g")"
+            e_res="$(echo "$res" | sed -r 's/[\/&]/\\&/g')"
+            # ... Then nest result in b
+            res="$(cat "$b_file" | sed "s/###PARAM1###/$e_res/g")"
+            e_res="$(echo "$res" | sed -r 's/[\/&]/\\&/g')"
+
+            processed=$(printf '%s' "$processed" | \
+                        sed "s/†[^†]*†/$e_res/")
+        done
+        processed="$(printf '%s' "$processed" | sed -r 's/†/\*\*\*/g')"
+    fi
+
+    # TODO this method is going to fail these cases:
+    #      **this is a *test***
+    #      figure these out later.
+
+    # Checks for b (bold)
+    if [ -f "$b_file" ]
+    then
+        # Cycle through every b found
+        for b in $(printf '%s' "$processed" | grep -oE '\*\*[^*]*\*\*')
+        do
+            [ -z "$b" ] && continue
+
+            # Get rid of starting *'s
+            param_1=${b#\*\*}
+            # Get rid of ending *'s
+            param_1=${param_1%\*\*}
+            e_param_1=$(printf '%s' "$param_1" | sed -r 's/[\/&]/\\&/g')
+
+            # Generate resulting value
+            res="$(cat "$b_file" | sed -r "s/###PARAM1###/$e_param_1/g")"
+            e_res="$(printf '%s' "$res" | sed -r 's/[\/&]/\\&/g')"
+
+            processed=$(printf '%s' "$processed" | \
+                        sed -r "s/\*\*[^*]*\*\*/$e_res/")
+        done
+    fi
+
+    # Checks for i (italics)
+    if [ -f "$i_file" ]
+    then
+        # Cycle through every i found
+        for i in $(printf '%s' "$processed" | grep -oE '\*[^*]*\*')
+        do
+            [ -z "$i" ] && continue
+
+            # get rid of starting *
+            param_1=${i#\*}
+            # get rid of ending *
+            param_1=${param_1%\*}
+            e_param_1=$(printf '%s' "$param_1" | sed -r 's/[\/&]/\\&/g')
+
+            # Generate resulting value
+            res="$(cat "$i_file" | sed -r "s/###PARAM1###/$e_param_1/g")"
+            e_res="$(printf '%s' "$res" | sed -r 's/[\/&]/\\&/g')"
+            processed=$(printf '%s' "$processed" | \
+                        sed "s/\\*\\([^\\*]*\\)\\*/$e_res/")
+        done
+    fi
+
+# get back oldIFS
+IFS=$oldIFS
+}
