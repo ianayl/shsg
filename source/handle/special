@@ -1,0 +1,32 @@
+#!/bin/sh
+
+. source/handle/text
+
+handle_special() {
+
+    # remove the leading $
+    raw_special="${l#$}"
+
+    special_type=$(printf '%s' "$raw_special" | cut -d '$' -f '1')
+
+    special_file="$f_type_loc/$special_type"
+    if [ -f "$special_file" ] 
+    then
+        oldIFS="$IFS"
+        IFS='$'
+
+        param_no=1
+        for param in $(printf '%s' "$raw_special" | cut -d '$' -f '2-')
+        do
+            handle_text "$param"
+            e_res=$(echo "$processed" | sed -r 's/[\/&]/\\&/g')
+            cat "$special_file" | sed -e "s/###PARAM1###/$e_res/g" >> $f_final_dest
+            
+            param_no=$(($param_no + 1))
+        done
+
+        IFS="$oldIFS"
+    else
+        echo "==> Warning: no template file for $special_type found, skipping."
+    fi
+}
